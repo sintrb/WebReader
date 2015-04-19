@@ -8,7 +8,7 @@ angular.module('reader.service', [])
 			})
 		};
 		return {
-			bookurl: "book/",
+			bookurl: "book1/",
 			toc : function(){
 				return runHttpRequest(this.bookurl + "toc.json");
 			},

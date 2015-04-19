@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="reader">
+<html xmlns:ng="http://angularjs.org">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="Pragma" content="no-cache">
@@ -19,21 +19,29 @@
 
 	<style type="text/css">
 	#screen{
-		width: 320px;
-		height: 480px;
+		width: 100%;
+		height: 100%;
 		color: #AAA;
 		background: #F6F4EC;
+		/*background: #777;*/
 		padding: 0;
 		margin: 0;
 	}
+	html{
+		font-size: 16px;
+	}
 	body {
-		font: 16px "Helvetica Neue",Helvetica,"Lucida Grande","Luxi Sans",Arial,"Hiragino Sans GB",STHeiti,"Microsoft YaHei","Wenquanyi Micro Hei","WenQuanYi Micro Hei Mono","WenQuanYi Zen Hei","WenQuanYi Zen Hei Mono",LiGothicMed;
+		font-family:"Helvetica Neue",Helvetica,"Lucida Grande","Luxi Sans",Arial,"Hiragino Sans GB",STHeiti,"Microsoft YaHei","Wenquanyi Micro Hei","WenQuanYi Micro Hei Mono","WenQuanYi Zen Hei","WenQuanYi Zen Hei Mono",LiGothicMed;
 		overflow-x: hidden;
+		overflow-y: hidden;
+	}
+	*{
+		margin: 0;
+		padding: 0;
 	}
 	.page{
 		margin: 0;
 		padding: 0;
-		height: 100%;
 	}
 	.page .hd, .page .ft{
 		color: #4C4C4C;
@@ -42,29 +50,34 @@
 		font-size: .7rem;
 		vertical-align: middle;
 		z-index: 10;
-		overflow:hidden hidden;
+		overflow: hidden hidden;
 	}
 	.page .hd{
 		border-bottom: 1px solid #AAA;
 	}
 	.page .hd h3{
 		text-align: left;
-		/*padding-left: 1rem;*/
 	}
-
+	.page .ft{
+		text-align: center;
+	}
 	.page .bd{
-		height: 24em;
-		/*overflow: hidden;*/
+		overflow: hidden;
 		padding: 0em 0em;
 		color: #000;
+		z-index: 0;
+		padding: 0;
+		margin: 0;
+		height: 100%;
+		width: 100%;
+
 	}
-
-
+	.page .bd .content: {
+		overflow: hidden;
+		position:relative;
+	}
 	.content p{
 		text-indent: 2rem;
-		line-height: 1.5rem;
-		min-height: 1.5rem;
-		font-size: 1rem;
 		word-wrap: break-word;
 		text-align:left;
 		margin: 0;
@@ -90,33 +103,44 @@
 		font-size: 1.2rem;
 	}
 
+	.list-content{
+		overflow-y: scroll;
+		font-size: .7rem;
+	}
 
-
+	[ng-click]{
+		cursor: pointer;
+	}
 </style>
 
-<body ng-controller="ReaderController">
-	<center>
-	<ul style="list-style-type: upper-hexadecimal;text-align: left;">
-		<li ng-repeat="t in toc.toc" ng-if="t.level==0" ng-click="load(t.part_no)">{{t.title}}</li>
-	</ul>
-		<div id="screen">
-			<div class="page curr-page" data-pagination="23">
+<body ng-app="reader" class="ng-app:reader">
+	<div ng-controller="ReaderController">
+		<!-- <div>-{{curpage.offh}}</div> -->
+		<div id="screen" ng-style="{height:style.screenheight+'px',width:style.screenwidth+'px'}">
+			<div class="page curr-page" ng-style="{height:style.pageheight+'px',width:style.pagewidth+'px'}">
 				<div class="hd">
-					<h3>
-						{{cont.title}}
-					</h3>
-					<div class="header-extra">
-						<div class="header-controls"></div>
+					<h3>{{cont.title}}</h3>
+				</div>
+				<div class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
+					<div ng-if="!showlist" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
+						<p ng-repeat="c in curpage.conts track by $index" class="paragraph {{c.data.format.p_align}}" ng-class="{'quote':c.data.format.p_quote, 'bold':c.data.format.p_bold}" ng-style="{width:style.contwidth+'px', 'line-height':style.lineheight+'rem', 'font-size':style.fontsize+'px'}">{{c.data.text}}</p>
+					</div>
+
+					<div ng-if="showlist" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
+						<ul style="list-style-type: upper-hexadecimal;text-align: left;">
+							<li ng-repeat="t in toc.toc track by $index" ng-if="t.level==0" ng-click="load(t.part_no)">{{t.title}}</li>
+						</ul>
 					</div>
 				</div>
-				<div class="bd">
-					<div class="content">
-						<p ng-repeat="c in conts track by $index" class="paragraph {{c.data.format.p_align}}" ng-class="{'quote':c.data.format.p_quote, 'bold':c.data.format.p_bold}">{{c.data.text}}</p>
-					</div>
+
+				<div class="ft">
+					<span ng-click="showlist=!showlist">#</span>
+					<span ng-click="prePage()">上一页</span>
+					{{page_no+1}}/{{page_count}}
+					<span ng-click="nxtPage()">下一页</span>
 				</div>
-				<div class="ft">{{page}}</div>
 			</div>
 		</div>
-	</center>
+	</div>
 </body>
 </html>
