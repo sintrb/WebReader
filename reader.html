@@ -35,6 +35,7 @@
 					</div>
 
 					<div ng-if="showlist" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
+					<h4>Choose Book Part</h4>
 						<ul style="list-style-type: upper-hexadecimal;text-align: left;">
 							<li ng-repeat="p in book.parts track by $index" ng-if="p.level==0" ng-click="loadPart(p.part_no)">{{p.title}}</li>
 						</ul>
