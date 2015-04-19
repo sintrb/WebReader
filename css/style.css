@@ -1,0 +1,93 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+html{
+	font-size: 16px;
+}
+body {
+	font-family:"Helvetica Neue",Helvetica,"Lucida Grande","Luxi Sans",Arial,"Hiragino Sans GB",STHeiti,"Microsoft YaHei","Wenquanyi Micro Hei","WenQuanYi Micro Hei Mono","WenQuanYi Zen Hei","WenQuanYi Zen Hei Mono",LiGothicMed;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	background: #F6F4EC;
+}
+#screen{
+	width: 100%;
+	height: 100%;
+	color: #AAA;
+}
+.page .hd, .page .ft{
+	color: #4C4C4C;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	font-size: .7rem;
+	vertical-align: middle;
+	z-index: 10;
+	overflow: hidden hidden;
+}
+.page .hd{
+	border-bottom: 1px solid #AAA;
+}
+.page .hd h3{
+	text-align: left;
+	margin-left: 0.5rem;
+}
+.page .ft{
+	text-align: center;
+}
+.page .bd{
+	overflow: hidden;
+	color: #000;
+	z-index: 0;
+	height: 100%;
+	width: 100%;
+}
+.page .bd .content: {
+	overflow: hidden;
+	position:relative;
+}
+.content p{
+	text-indent: 2rem;
+	word-wrap: break-word;
+	text-align:left;
+	margin: 0;
+}
+
+.content p.quote{
+	font-style: italic;
+	font-size: .8rem;
+}
+
+.content p.left{
+	text-align: left;
+}
+.content p.right{
+	text-align: right;
+}
+.content p.center{
+	text-align: center;
+	text-indent: 0;
+}
+.content p.bold{
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+
+.list-content{
+	overflow-y: scroll;
+	font-size: .8rem;
+}
+
+
+.list-content ul li{
+	padding: 5px 5px;
+	margin-left: 2rem;
+}
+
+.page .ft span{
+	padding: 0 .8rem;
+}
+
+[ng-click]{
+	cursor: pointer;
+}

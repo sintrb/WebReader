@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<title>Webreader by sintrb</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="gh-pages/stylesheets/normalize.css" media="screen">
+	<!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	-->
+	<link rel="stylesheet" type="text/css" href="gh-pages/stylesheets/stylesheet.css" media="screen">
+	<link rel="stylesheet" type="text/css" href="gh-pages/stylesheets/github-light.css" media="screen"></head>
+
+	<script type="text/javascript" src="js/jquery.js"></script>
+
+	<style type="text/css">
+	.demo{
+		text-align: center;
+	}
+	.demo .options{
+		display: block;
+		width: 10em;
+		margin: 5px auto;
+	}
+	.demo .phone{
+		display: block;
+		width: 320px;
+		height: 240px;
+		margin: 0 auto;
+		border: none;
+	}
+	</style>
+<body>
+	<section class="page-header">
+		<h1 class="project-name">Webreader</h1>
+		<h2 class="project-tagline">A simple front-end reader framework.</h2>
+		<a href="https://github.com/sintrb/WebReader" class="btn">View on GitHub</a>
+		<a href="https://github.com/sintrb/WebReader/zipball/master" class="btn">Download .zip</a>
+		<a href="https://github.com/sintrb/WebReader/tarball/master" class="btn">Download .tar.gz</a>
+	</section>
+
+	<section class="main-content">
+		<h3>
+			<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
+				<span class="octicon octicon-link"></span>
+			</a>
+			Welcome to Webreader Demo.
+		</h3>
+
+		<p>
+			This is a demo page for
+			<a href="https://github.com/sintrb/WebReader">Webreader</a>
+			.
+		</p>
+
+		<div class="demo">
+			<select class="options">
+				<option value="320x240">320x240</option>
+				<option value="240x320">240x320</option>
+				<option value="480x320">480x320</option>
+				<option value="320x480">320x480</option>
+				<option value="800x480">800x480</option>
+				<option value="480x800">480x800</option>
+			</select>
+			<iframe src="reader.html" class="phone"></iframe>
+			<a href="reader.html" target="_blank">Open The Reader</a>
+		</div>
+		<h3>
+			<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true">
+				<span class="octicon octicon-link"></span>
+			</a>
+			Support or Contact
+		</h3>
+		<p>
+			Having trouble with Webreader? contact
+			<a href="mailto:sintrb@gmail.com">sintrb@gmail.com</a>
+			.
+		</p>
+
+		<footer class="site-footer">
+			<span class="site-footer-owner">
+				<a href="https://github.com/sintrb/WebReader">Webreader</a>
+				is maintained by
+				<a href="https://github.com/sintrb">sintrb</a>
+				.
+			</span>
+		</footer>
+	</section>
+
+</body>
+
+<script type="text/javascript">
+	+jQuery(function($) {
+		$(".options").change(function(event) {
+			var rs = /(.+)x(.+)/.exec($(".options").val());
+			$(".phone").css("width", rs[1]+"px");
+			$(".phone").css("height", rs[2]+"px");
+		});
+	}, jQuery);
+</script>
+</html>
