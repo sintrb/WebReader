@@ -3,6 +3,7 @@
  * GitHub: https://github.com/sintrb/WebReader
  * E-Mail: sintrb@gmail.com
 */
+
 angular.module('reader.service', [])
 	.factory('readerService', function($http){
 		var baseurl = "data/";
