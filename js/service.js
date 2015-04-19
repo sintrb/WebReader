@@ -1,6 +1,6 @@
 angular.module('reader.service', [])
 	.factory('readerService', function($http){
-		var baseurl = "/data/";
+		var baseurl = "data/";
 		var runHttpRequest = function(url){
 			return $http({
 				method:'GET',
