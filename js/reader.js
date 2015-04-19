@@ -1,18 +1,8 @@
-String.prototype.getWidth = function(fontSize){
-    var span = document.getElementById("__getwidth");
-    if (span == null) {
-        span = document.createElement("span");
-        span.id = "__getwidth";
-        document.body.appendChild(span);
-        span.style.visibility = "hidden";
-        span.style.whiteSpace = "nowrap";
-    }
-    span.innerText = this;
-    if(typeof(fontsize)!="undefined")
-    	span.style.fontSize = fontSize + "px";
-
-    return span.offsetWidth;
-}
+/*
+ * WebReader
+ * GitHub: https://github.com/sintrb/WebReader
+ * E-Mail: sintrb@gmail.com
+*/
 
 angular.module("reader",['reader.service'])
 	.controller("ReaderController", ['$scope', 'readerService', '$timeout', function($scope, readerService, $timeout){
