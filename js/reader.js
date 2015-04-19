@@ -15,22 +15,35 @@ String.prototype.getWidth = function(fontSize){
 }
 
 angular.module("reader",['reader.service'])
-	.controller("ReaderController", ['$scope', 'readerService', function($scope, readerService){
+	.controller("ReaderController", ['$scope', 'readerService', '$timeout', function($scope, readerService, $timeout){
 
-		readerService.toc().success(function(toc){
-			$scope.toc = toc;
-		});
+		$scope.fontsize = 16;	// pix
 
-		$scope.load = function(part_no){
-			readerService.cont(part_no).success(function(cont){
-				$scope.cont = cont;
-				$scope.conts = cont.contents;
-				$scope.dopage();
+		// load a book by book_id
+		// must adapter at readerService
+		$scope.loadBook = function(book_id){
+			readerService.getBook(book_id, function(book){
+				if(book){
+					$scope.book = book;
+					$scope.loadPart(book_id, 0);
+				}
 			});
 		}
-		// page the article
-		$scope.dopage = function(){
-			var fontsize = 16;	// pix
+		// load a part of a current book
+		$scope.loadPart = function(part_no){
+			readerService.getPart($scope.book.id, part_no, function(part){
+				if(part){
+					$scope.part = part;
+					$scope.conts = part.conts;
+					$scope.repage();
+				}
+			});
+		}
+
+		// page the article, calculate page....
+		// it's a shit function, but is the core
+		$scope.repage = function(){
+			var fontsize = $scope.fontsize;	// pix
 			var textindent = 2;	// rem
 			var lineheight = 1.5; // rem
 			var headheight = 1.5;	// rem
@@ -38,14 +51,12 @@ angular.module("reader",['reader.service'])
 			var screenwidth = $(window).width();	// pix
 			var screenheight = $(window).height();	// pix
 
+			$(document.documentElement).css("font-size", fontsize+"px");
+
 			$("#screen").width(screenwidth);
 			$("#screen").height(screenwidth);	
 
-			$(document.children).css("font-size", fontsize+"px");
-
 			var lineheightpix = fontsize*lineheight;
-
-			console.log("W:"+screenwidth+" H:"+screenheight);
 
 			var minmargin = 5;	// pix
 			var minmarginx = minmargin;	// pix
@@ -74,7 +85,7 @@ angular.module("reader",['reader.service'])
 			$scope.style = {
 				screenheight: screenheight,
 				screenwidth: screenwidth,
-				
+
 				pageheight: pageheight,
 				pagewidth: pagewidth,
 				bdheight: bdheight,
@@ -87,12 +98,10 @@ angular.module("reader",['reader.service'])
 				lineheight: lineheight,
 				fontsize: fontsize,
 			}
-			
-			for(var k in $scope.style){
-				console.log("style."+k+"="+$scope.style[k]);
-			}
 
-			if(!$scope.conts)
+			// if no content to refresh(only get style) or screen is too small
+			// return
+			if(!$scope.conts || lineheight>contheight)
 				return;
 			
 
@@ -115,6 +124,8 @@ angular.module("reader",['reader.service'])
 			}
 
 			var pages = [];
+
+			// create a page
 			function newPage(){
 				return {
 					conts:[],
@@ -124,6 +135,7 @@ angular.module("reader",['reader.service'])
 				};
 			}
 
+			// add content to page
 			function addToPage(page, cont, h, offh, enty){
 				if(page.curh>=bdheight){
 					pages.push(page);
@@ -143,26 +155,60 @@ angular.module("reader",['reader.service'])
 			}
 
 			var pg = newPage();
+
+			// add all content
 			$.each($scope.conts, function(index, val) {
-					if(val.type="paragraph" && typeof(val.data.text)!="undefined"){
-						var h = textHeight(val.data.text);
+					if(val.type="p"){
+						var h = textHeight(val.text);
 						if(h==NaN && h ==0)
 							return;
-						console.log(h+" "+val.data.text);
 						pg = addToPage(pg, val, h, 0, false);
 					}
 			});
 
+			// add the last page to pages
 			pages.push(pg);
+
+			//
 			$scope.pages = pages;
 			$scope.page_count = pages.length;
 			$scope.page_no = 0;
 			$scope.curpage = $scope.pages[$scope.page_no];
 
-			console.log($scope.page_count+" "+ $scope.pages);
+			// remove it
 			p.remove();
 
+			// switch to content view
 			$scope.showlist = false;
+		}
+
+		$scope.applyRepage = function(){
+			var limittime = 300;
+			if(!$scope.lastApplyRepageTime){
+				$scope.repage();
+			}
+			else{
+				function doRepage(){
+					if((Date.now()-$scope.lastApplyRepageTime)>=limittime){
+						$scope.repage();
+					}
+					// else, ignor this request
+				}
+				$timeout(doRepage, limittime*1.5);	// a little longer then limittime
+			}
+
+			$scope.lastApplyRepageTime = Date.now();
+		}
+
+		// font ++
+		$scope.fontBiger = function(){
+			if($scope.fontsize<36)
+				$scope.fontsize += 2;
+		}
+		// font --
+		$scope.fontSmaller = function(){
+			if($scope.fontsize>10)
+				$scope.fontsize -= 2;
 		}
 
 		$scope.prePage = function(){
@@ -179,7 +225,11 @@ angular.module("reader",['reader.service'])
 			}
 		}
 
-		$scope.load(0);
-		// $scope.dopage();
-		// $scope.showlist = true;
+		$scope.$watch('fontsize', $scope.applyRepage);
+
+		$scope.repage();
+		$scope.loadBook(1);
+		$(window).resize(function(event) {
+			$scope.$apply($scope.applyRepage);
+		});
 	}]);
