@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html ng-app="reader">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>阅读器</title>
+
+	<script type="text/javascript" src="/js/jquery.js"></script>
+	<script type="text/javascript" src="/js/angular.js"></script>
+
+	<script type="text/javascript" src="/js/service.js"></script>
+	<script type="text/javascript" src="/js/reader.js"></script>
+
+	<meta name="viewport" content="minimal-ui user-scalable=no, width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="renderer" content="webkit">
+
+	<style type="text/css">
+	#screen{
+		width: 320px;
+		height: 480px;
+		color: #AAA;
+		background: #F6F4EC;
+		padding: 0;
+		margin: 0;
+	}
+	body {
+		font: 16px "Helvetica Neue",Helvetica,"Lucida Grande","Luxi Sans",Arial,"Hiragino Sans GB",STHeiti,"Microsoft YaHei","Wenquanyi Micro Hei","WenQuanYi Micro Hei Mono","WenQuanYi Zen Hei","WenQuanYi Zen Hei Mono",LiGothicMed;
+		overflow-x: hidden;
+	}
+	.page{
+		margin: 0;
+		padding: 0;
+		height: 100%;
+	}
+	.page .hd, .page .ft{
+		color: #4C4C4C;
+		height: 1.5rem;
+		line-height: 1.5rem;
+		font-size: .7rem;
+		vertical-align: middle;
+		z-index: 10;
+		overflow:hidden hidden;
+	}
+	.page .hd{
+		border-bottom: 1px solid #AAA;
+	}
+	.page .hd h3{
+		text-align: left;
+		/*padding-left: 1rem;*/
+	}
+
+	.page .bd{
+		height: 24em;
+		/*overflow: hidden;*/
+		padding: 0em 0em;
+		color: #000;
+	}
+
+
+	.content p{
+		text-indent: 2rem;
+		line-height: 1.5rem;
+		min-height: 1.5rem;
+		font-size: 1rem;
+		word-wrap: break-word;
+		text-align:left;
+		margin: 0;
+	}
+
+	.content p.quote{
+		font-style: italic;
+		font-size: .8rem;
+	}
+
+	.content p.left{
+		text-align: left;
+	}
+	.content p.right{
+		text-align: right;
+	}
+	.content p.center{
+		text-align: center;
+		text-indent: 0;
+	}
+	.content p.bold{
+		font-weight: bold;
+		font-size: 1.2rem;
+	}
+
+
+
+</style>
+
+<body ng-controller="ReaderController">
+	<center>
+	<ul style="list-style-type: upper-hexadecimal;text-align: left;">
+		<li ng-repeat="t in toc.toc" ng-if="t.level==0" ng-click="load(t.part_no)">{{t.title}}</li>
+	</ul>
+		<div id="screen">
+			<div class="page curr-page" data-pagination="23">
+				<div class="hd">
+					<h3>
+						{{cont.title}}
+					</h3>
+					<div class="header-extra">
+						<div class="header-controls"></div>
+					</div>
+				</div>
+				<div class="bd">
+					<div class="content">
+						<p ng-repeat="c in conts track by $index" class="paragraph {{c.data.format.p_align}}" ng-class="{'quote':c.data.format.p_quote, 'bold':c.data.format.p_bold}">{{c.data.text}}</p>
+					</div>
+				</div>
+				<div class="ft">{{page}}</div>
+			</div>
+		</div>
+	</center>
+</body>
+</html>
