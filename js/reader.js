@@ -153,7 +153,7 @@ angular.module("reader",['reader.service'])
 						nh = nw/rk;
 					}
 					else{
-						nh = contwidth*0.8;
+						nh = contheight*0.8;
 						nw = nh*rk;
 					}
 
