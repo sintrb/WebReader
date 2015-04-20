@@ -23,7 +23,7 @@ body {
 	font-size: .7rem;
 	vertical-align: middle;
 	z-index: 10;
-	overflow: hidden hidden;
+	overflow: hidden;
 }
 .page .hd{
 	border-bottom: 1px solid #AAA;
@@ -41,36 +41,17 @@ body {
 	z-index: 0;
 	height: 100%;
 	width: 100%;
+	position: relative;
 }
 .page .bd .content: {
 	overflow: hidden;
 	position:relative;
 }
 .content p{
-	text-indent: 2rem;
+	/*text-indent: 2rem;*/
 	word-wrap: break-word;
 	text-align:left;
 	margin: 0;
-}
-
-.content p.quote{
-	font-style: italic;
-	font-size: .8rem;
-}
-
-.content p.left{
-	text-align: left;
-}
-.content p.right{
-	text-align: right;
-}
-.content p.center{
-	text-align: center;
-	text-indent: 0;
-}
-.content p.bold{
-	font-weight: bold;
-	font-size: 1.2rem;
 }
 
 .list-content{
@@ -86,6 +67,11 @@ body {
 
 .page .ft span{
 	padding: 0 .8rem;
+}
+
+.touchpage{
+	background-color: #FFF;
+	opacity: 0.001;
 }
 
 [ng-click]{
