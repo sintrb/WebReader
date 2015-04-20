@@ -12,22 +12,36 @@ angular.module("reader",['reader.service'])
 		// load a book by book_id
 		// must adapter at readerService
 		$scope.loadBook = function(book_id){
-			readerService.getBook(book_id, function(book){
+			readerService.getBook(book_id).success(function(book){
 				if(book){
 					$scope.book = book;
-					$scope.loadPart(book_id, 0);
+
+					$scope.curpage = null;
+					$scope.part = null;
+					$scope.contents = null;
+					$scope.showlist = true;
 				}
 			});
 		}
 		// load a part of a current book
-		$scope.loadPart = function(part_no){
-			readerService.getPart($scope.book.id, part_no, function(part){
+		$scope.loadPart = function(part_id){
+			readerService.getPart($scope.book.id, part_id).success(function(part){
 				if(part){
 					$scope.part = part;
-					$scope.conts = part.conts;
+					$scope.contents = part.contents;
 					$scope.repage();
 				}
 			});
+		}
+
+		$scope.pTextStyle = function(c){
+			return {
+			'width':c._size.w+'px', 
+			'font-style':c.format.italic?'italic':'normal', 
+			'font-weight':c.format.bold?'bold':'normal', 
+			'text-indent':typeof(c.format.indent)=='undefined'?'2em':c.format.indent+'em', 
+			'font-size':typeof(c.format.size)=='undefined'?'1rem':c.format.size+'rem', 
+			'line-height':c._format&&c._format.lineheight?c._format.lineheight+'pix':$scope.style.lineheight+'rem'};
 		}
 
 		// page the article, calculate page....
@@ -91,7 +105,7 @@ angular.module("reader",['reader.service'])
 
 			// if no content to refresh(only get style) or screen is too small
 			// return
-			if(!$scope.conts || lineheight>contheight)
+			if(!$scope.contents || lineheight>contheight)
 				return;
 			
 
@@ -113,33 +127,64 @@ angular.module("reader",['reader.service'])
 				return p.height();
 			}
 
+			function contentSize(cont){
+				if(cont.type=='text'){
+					var _sz = cont._size;
+					cont._size = {w:contwidth};
+					var sty = $scope.pTextStyle(cont);
+					cont._size = _sz;
+					for(var k in sty){
+						p.css(k, sty[k]);
+					}
+					p.text(cont.text);
+					return {
+						w: contwidth,
+						h: p.height()
+					};
+				}
+				else if(cont.type=='image'){
+					return {
+						w: 240,
+						h: Math.floor(180/lineheightpix)*lineheightpix,
+					};
+				}
+
+				else{
+					return null;
+				}
+			}
+
 			var pages = [];
 
 			// create a page
 			function newPage(){
 				return {
-					conts:[],
+					contents:[],
 					curh:0,
 					offh:0,
 					noffh:0,
+					maxh:bdheight
 				};
 			}
 
 			// add content to page
-			function addToPage(page, cont, h, offh, enty){
-				if(page.curh>=bdheight){
+			function addToPage(page, cont, offh){
+				// console.log(cont);
+				var rh = page.maxh-page.curh;
+
+				if(page.curh>=page.maxh || (cont.single && rh<cont._size.h)){
 					pages.push(page);
 					var npage = newPage();
 					npage.offh = page.noffh;
 					page = npage;
+					rh = npage.maxh;
 				}
 
-				var rh = bdheight-page.curh;
-				page.conts.push(cont);
-				page.curh += (h-offh);
-				if(page.curh>bdheight){
+				page.contents.push(cont);
+				page.curh += (cont._size.h-offh);
+				if(page.curh>page.maxh){
 					page.noffh = offh+rh;
-					return addToPage(page, cont, h, offh+rh, enty);
+					return addToPage(page, cont, offh+rh);
 				}
 				return page;
 			}
@@ -147,13 +192,9 @@ angular.module("reader",['reader.service'])
 			var pg = newPage();
 
 			// add all content
-			$.each($scope.conts, function(index, val) {
-					if(val.type="p"){
-						var h = textHeight(val.text);
-						if(h==NaN && h ==0)
-							return;
-						pg = addToPage(pg, val, h, 0, false);
-					}
+			$.each($scope.contents, function(index, val) {
+				if(val._size = contentSize(val))
+					pg = addToPage(pg, val, 0);
 			});
 
 			// add the last page to pages

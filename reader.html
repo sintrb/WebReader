@@ -27,17 +27,21 @@
 		<div id="screen" ng-style="{height:style.screenheight+'px',width:style.screenwidth+'px'}">
 			<div class="page curr-page" ng-style="{height:style.pageheight+'px',width:style.pagewidth+'px'}">
 				<div class="hd">
-					<h3>{{part.title}}</h3>
+					<h3>{{(!showlist && part.title) || book.title || 'WebReader'}}</h3>
 				</div>
 				<div class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
-					<div ng-if="!showlist" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
-						<p ng-repeat="c in curpage.conts track by $index" class="paragraph {{c.format.align}}" ng-class="{'quote':c.format.quote, 'bold':c.format.bold}" ng-style="{width:style.contwidth+'px', 'line-height':style.lineheight+'rem'}">{{c.text}}</p>
+					<div ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
+					<div ng-repeat="c in curpage.contents track by $index"
+						ng-style="{width:style.contwidth+'px', height:c._size.h+'px', 'text-align':c.format.align}"
+					>
+						<p ng-if="c.type=='text'" class="paragraph" ng-class="{'bold':c.format.bold}" ng-style="pTextStyle(c)">{{c.text}}</p>
+						<img ng-if="c.type=='image'" ng-src="{{c.src}}" ng-style="{width:c._size.w+'px', height:c._size.h+'px'}"/>
+					</div>
 					</div>
 
-					<div ng-if="showlist" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
-					<h4>Choose Book Part</h4>
-						<ul style="list-style-type: upper-hexadecimal;text-align: left;">
-							<li ng-repeat="p in book.parts track by $index" ng-if="p.level==0" ng-click="loadPart(p.part_no)">{{p.title}}</li>
+					<div ng-if="showlist || !part" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
+						<ul style="list-style-type: decimal;text-align: left;">
+							<li ng-repeat="p in book.parts track by $index" ng-if="p.level==0" ng-click="loadPart(p.id)">{{p.title}}</li>
 						</ul>
 					</div>
 				</div>
@@ -47,7 +51,7 @@
 					<dic style="float:left; padding:0 10px;">
 						<span ng-click="showlist=!showlist">=</span>
 					</dic>
-					<div style="display: inline-block;">
+					<div ng-if="!(showlist || !part)" style="display: inline-block;">
 						<span ng-click="prePage()">&lt;&lt;</span>
 						{{page_no+1}}/{{page_count}}
 						<span ng-click="nxtPage()">&gt;&gt;</span>
