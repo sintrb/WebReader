@@ -23,7 +23,7 @@ body {
 	font-size: .7rem;
 	vertical-align: middle;
 	z-index: 10;
-	overflow: hidden hidden;
+	overflow: hidden;
 }
 .page .hd{
 	border-bottom: 1px solid #AAA;
@@ -41,6 +41,7 @@ body {
 	z-index: 0;
 	height: 100%;
 	width: 100%;
+	position: relative;
 }
 .page .bd .content: {
 	overflow: hidden;
@@ -66,6 +67,11 @@ body {
 
 .page .ft span{
 	padding: 0 .8rem;
+}
+
+.touchpage{
+	background-color: #FFF;
+	opacity: 0.001;
 }
 
 [ng-click]{

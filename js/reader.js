@@ -7,10 +7,9 @@
 angular.module("reader",['reader.service'])
 	.controller("ReaderController", ['$scope', 'readerService', '$timeout', function($scope, readerService, $timeout){
 
-		$scope.fontsize = 16;	// pix
+		$scope.fontsize = 18;	// pix
 
 		// load a book by book_id
-		// must adapter at readerService
 		$scope.loadBook = function(book_id){
 			readerService.getBook(book_id).success(function(book){
 				if(book){
@@ -29,6 +28,7 @@ angular.module("reader",['reader.service'])
 				if(part){
 					$scope.part = part;
 					$scope.contents = part.contents;
+					$scope.page_no = 0;
 					$scope.repage();
 				}
 			});
@@ -143,9 +143,26 @@ angular.module("reader",['reader.service'])
 					};
 				}
 				else if(cont.type=='image'){
+					var rk = cont.format.width/cont.format.height;
+					var sk = contwidth/contheight;
+
+					var nw = 0, nh = 0;
+
+					if(rk>sk){
+						nw = contwidth*0.8;
+						nh = nw/rk;
+					}
+					else{
+						nh = contwidth*0.8;
+						nw = nh*rk;
+					}
+
+					nh = Math.floor(nh/lineheightpix)*lineheightpix;
+					nw = nh*rk;
+
 					return {
-						w: 240,
-						h: Math.floor(180/lineheightpix)*lineheightpix,
+						w: nw,
+						h: nh,
 					};
 				}
 
@@ -163,7 +180,19 @@ angular.module("reader",['reader.service'])
 					curh:0,
 					offh:0,
 					noffh:0,
-					maxh:bdheight
+					maxh:bdheight,
+
+					getCurContent: function(){
+						if(this.offh>0 && this.contents.length>1){
+							return this.contents[1];
+						}
+						else if(this.contents.length>0){
+							return this.contents[0];
+						}
+						else{
+							return null;
+						}
+					}
 				};
 			}
 
@@ -203,7 +232,6 @@ angular.module("reader",['reader.service'])
 			//
 			$scope.pages = pages;
 			$scope.page_count = pages.length;
-			$scope.page_no = 0;
 			$scope.curpage = $scope.pages[$scope.page_no];
 
 			// remove it
@@ -247,12 +275,38 @@ angular.module("reader",['reader.service'])
 				--$scope.page_no;
 				$scope.curpage = $scope.pages[$scope.page_no];
 			}
+			else{
+				var partix = -1;
+				$.each($scope.book.parts, function(index, val) {
+					if(val.id == $scope.part.id)
+						partix = index;
+				});
+				if(partix>0){
+					$scope.loadPart($scope.book.parts[partix-1].id);
+				}
+				else{
+					$scope.showlist = true;
+				}
+			}
 		}
 
 		$scope.nxtPage = function(){
 			if($scope.page_no<($scope.pages.length-1)){
 				++$scope.page_no;
 				$scope.curpage = $scope.pages[$scope.page_no];
+			}
+			else{
+				var partix = -1;
+				$.each($scope.book.parts, function(index, val) {
+					if(val.id == $scope.part.id)
+						partix = index;
+				});
+				if(partix>=0 && partix<($scope.book.parts.length-1)){
+					$scope.loadPart($scope.book.parts[partix+1].id);
+				}
+				else{
+					$scope.showlist = true;
+				}
 			}
 		}
 

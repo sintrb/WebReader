@@ -17,56 +17,57 @@
 	<meta name="viewport" content="minimal-ui user-scalable=no, width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
-	<meta name="renderer" content="webkit">
-
-</head>
+	<meta name="renderer" content="webkit"></head>
 
 <body ng-app="reader" class="ng-app:reader">
 	<div ng-controller="ReaderController">
-		<!-- <div>-{{curpage.offh}}</div> -->
-		<div id="screen" ng-style="{height:style.screenheight+'px',width:style.screenwidth+'px'}">
-			<div class="page curr-page" ng-style="{height:style.pageheight+'px',width:style.pagewidth+'px'}">
-				<div class="hd">
-					<h3>{{(!showlist && part.title) || book.title || 'WebReader'}}</h3>
-				</div>
-				<div class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
-					<div ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
+		<!-- <div>-{{curpage.offh}}</div>
+	-->
+	<div id="screen" ng-style="{height:style.screenheight+'px',width:style.screenwidth+'px'}">
+		<div class="page curr-page" ng-style="{height:style.pageheight+'px',width:style.pagewidth+'px'}">
+			<div class="hd">
+				<h3>{{(!showlist && part.title) || book.title || 'WebReader'}}</h3>
+			</div>
+			<div class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
+				<div ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
 					<div ng-repeat="c in curpage.contents track by $index"
 						ng-style="{width:style.contwidth+'px', height:c._size.h+'px', 'text-align':c.format.align}"
 					>
 						<p ng-if="c.type=='text'" class="paragraph" ng-class="{'bold':c.format.bold}" ng-style="pTextStyle(c)">{{c.text}}</p>
 						<img ng-if="c.type=='image'" ng-src="{{c.src}}" ng-style="{width:c._size.w+'px', height:c._size.h+'px'}"/>
 					</div>
-					</div>
-
-					<div ng-if="showlist || !part" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
-						<ul style="list-style-type: decimal;text-align: left;">
-							<li ng-repeat="p in book.parts track by $index" ng-if="p.level==0" ng-click="loadPart(p.id)">{{p.title}}</li>
-						</ul>
-					</div>
+				</div>
+				<div class="touchpage-mask" ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', position: 'absolute', top:0}" >
+					<div class="touchpage" ng-style="{height:style.contheight+'px', width:(style.contwidth*0.3)+'px', float:'left', cursor: 'inherit'}" ng-click="prePage()"></div>
+					<div class="touchpage" ng-style="{height:style.contheight+'px', width:(style.contwidth*0.7)+'px', float:'right', cursor: 'inherit'}" ng-click="nxtPage()"></div>
 				</div>
 
-				<div class="ft">
-
-					<dic style="float:left; padding:0 10px;">
-						<span ng-click="showlist=!showlist">=</span>
-					</dic>
-					<div ng-if="!(showlist || !part)" style="display: inline-block;">
-						<span ng-click="prePage()">&lt;&lt;</span>
-						{{page_no+1}}/{{page_count}}
-						<span ng-click="nxtPage()">&gt;&gt;</span>
-					</div>
-					<dic style="float:right;">
-						<span ng-click="fontSmaller()">A-</span>
-						{{fontsize}}
-						<span ng-click="fontBiger()">A+</span>
-					</dic>
-					<span style="clear:both">
-						
-					</span>
+				<div ng-if="showlist || !part" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
+					<ul style="list-style-type: decimal;text-align: left;">
+						<li ng-repeat="p in book.parts track by $index" ng-if="p.level==0" ng-click="loadPart(p.id)" ng-style="{'font-weight':p.id==part.id?'bold':'normal'}">{{p.title}}</li>
+					</ul>
 				</div>
+			</div>
+
+			<div class="ft">
+
+				<dic style="float:left; padding:0 10px;">
+					<span ng-click="showlist=!showlist">=</span>
+				</dic>
+				<div ng-if="!(showlist || !part)" style="display: inline-block;">
+					<span ng-click="prePage()">&lt;&lt;</span>
+					{{page_no+1}}/{{page_count}}
+					<span ng-click="nxtPage()">&gt;&gt;</span>
+				</div>
+				<dic style="float:right;">
+					<span ng-click="fontSmaller()">A-</span>
+					{{fontsize}}
+					<span ng-click="fontBiger()">A+</span>
+				</dic>
+				<span style="clear:both"></span>
 			</div>
 		</div>
 	</div>
+</div>
 </body>
 </html>
