@@ -74,6 +74,11 @@ body {
 	opacity: 0.001;
 }
 
+.operating-tip{
+	background: #F6F4EC;
+	border:1px solid #AAA;
+}
+
 [ng-click]{
 	cursor: pointer;
 }

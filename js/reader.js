@@ -4,13 +4,24 @@
  * E-Mail: sintrb@gmail.com
 */
 
+var s = function(angular, $, _){
 angular.module("reader",['reader.service'])
 	.controller("ReaderController", ['$scope', 'readerService', '$timeout', function($scope, readerService, $timeout){
-
+		
 		$scope.fontsize = 18;	// pix
 
+		$scope.operating = false;
+		$scope.operaterror = function(err){
+			$scope.operating = err;
+			$timeout(function(){
+				$scope.operating = false;
+			}, 2000);
+		}
 		// load a book by book_id
 		$scope.loadBook = function(book_id){
+			if($scope.operating)
+				return;
+			$scope.operating = true;
 			readerService.getBook(book_id).success(function(book){
 				if(book){
 					$scope.book = book;
@@ -19,18 +30,46 @@ angular.module("reader",['reader.service'])
 					$scope.part = null;
 					$scope.contents = null;
 					$scope.showlist = true;
+
+					$scope.operating = false;
+
+					readerService.getProgress(book_id).success(function(progress){
+						if(progress && progress.book_id){
+							$scope.loadPart(progress.part_id, progress.content_id);
+						}
+					}).error(function() {
+						$scope.loadPart($scope.book.parts[0].id);
+					});
 				}
+			}).error(function(data, status) {
+				$scope.operaterror("Oh, Error ! "+(status?status:''));
 			});
 		}
 		// load a part of a current book
-		$scope.loadPart = function(part_id){
+		$scope.loadPart = function(part_id, switch_to_content_id){
+			if($scope.operating)
+				return;
+			$scope.operating = true;
 			readerService.getPart($scope.book.id, part_id).success(function(part){
 				if(part){
 					$scope.part = part;
 					$scope.contents = part.contents;
-					$scope.page_no = 0;
 					$scope.repage();
+					$scope.page_no = 0;
+					if(switch_to_content_id){
+						$.each($scope.pages, function(index, val) {
+							var cnt = val.getCurContent();
+							if(cnt && cnt.id==switch_to_content_id){
+								$scope.page_no = index;
+							}
+						});
+					}
+					$scope.curpage = $scope.pages[$scope.page_no];
+					$scope.procUpdated = false;
 				}
+				$scope.operating = false;
+			}).error(function(data, status) {
+				$scope.operaterror("Oh, Error ! "+(status?status:''));
 			});
 		}
 
@@ -232,7 +271,6 @@ angular.module("reader",['reader.service'])
 			//
 			$scope.pages = pages;
 			$scope.page_count = pages.length;
-			$scope.curpage = $scope.pages[$scope.page_no];
 
 			// remove it
 			p.remove();
@@ -270,10 +308,14 @@ angular.module("reader",['reader.service'])
 				$scope.fontsize -= 2;
 		}
 
+		$scope.procUpdated = false;
 		$scope.prePage = function(){
+			if($scope.operating)
+				return;
 			if($scope.page_no>0){
 				--$scope.page_no;
 				$scope.curpage = $scope.pages[$scope.page_no];
+				$scope.procUpdated = true;
 			}
 			else{
 				var partix = -1;
@@ -291,9 +333,12 @@ angular.module("reader",['reader.service'])
 		}
 
 		$scope.nxtPage = function(){
+			if($scope.operating)
+				return;
 			if($scope.page_no<($scope.pages.length-1)){
 				++$scope.page_no;
 				$scope.curpage = $scope.pages[$scope.page_no];
+				$scope.procUpdated = true;
 			}
 			else{
 				var partix = -1;
@@ -310,7 +355,20 @@ angular.module("reader",['reader.service'])
 			}
 		}
 
+		$scope.postProgress = function(){
+			// $scope.$apply(function(){
+				if(!$scope.procUpdated)
+					return;
+				var cnt = $scope.curpage?$scope.curpage.getCurContent():null;
+				if(cnt){
+					readerService.postProgress($scope.book.id, $scope.part.id, cnt.id);
+				}
+				$scope.procUpdated = false;
+			// });
+		};
+
 		$scope.$watch('fontsize', $scope.applyRepage);
+		$scope.$watch('procUpdated', $scope.postProgress);
 
 		$scope.repage();
 		$scope.loadBook(1);
@@ -318,3 +376,4 @@ angular.module("reader",['reader.service'])
 			$scope.$apply($scope.applyRepage);
 		});
 	}]);
+}(angular, jQuery, _);
