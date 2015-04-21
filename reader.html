@@ -7,6 +7,7 @@
 	<title>WebReader</title>
 
 	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/underscore.js"></script>
 	<script type="text/javascript" src="js/angular.js"></script>
 
 	<script type="text/javascript" src="js/service.js"></script>
@@ -30,16 +31,15 @@
 			</div>
 			<div class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
 				<div ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
-					<div ng-repeat="c in curpage.contents track by $index"
-						ng-style="{width:style.contwidth+'px', height:c._size.h+'px', 'text-align':c.format.align}"
-					>
+					<div ng-repeat="c in curpage.contents track by $index" ng-style="{width:style.contwidth+'px', height:c._size.h+'px', 'text-align':c.format.align}" ng-data-id="{{c.id}}">
 						<p ng-if="c.type=='text'" class="paragraph" ng-class="{'bold':c.format.bold}" ng-style="pTextStyle(c)">{{c.text}}</p>
 						<img ng-if="c.type=='image'" ng-src="{{c.src}}" ng-style="{width:c._size.w+'px', height:c._size.h+'px'}"/>
 					</div>
 				</div>
-				<div class="touchpage-mask" ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', position: 'absolute', top:0}" >
-					<div class="touchpage" ng-style="{height:style.contheight+'px', width:(style.contwidth*0.3)+'px', float:'left', cursor: 'inherit'}" ng-click="prePage()"></div>
-					<div class="touchpage" ng-style="{height:style.contheight+'px', width:(style.contwidth*0.7)+'px', float:'right', cursor: 'inherit'}" ng-click="nxtPage()"></div>
+				<div class="touchpage-mask" ng-if="!(showlist || !part) || operating" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', position: 'absolute', top:0}" >
+					<div class="touchpage" ng-if="!operating" ng-style="{height:style.contheight+'px', width:(style.contwidth*0.3)+'px', float:'left', cursor: 'inherit'}" ng-click="prePage()"></div>
+					<div class="touchpage" ng-if="!operating" ng-style="{height:style.contheight+'px', width:(style.contwidth*0.7)+'px', float:'right', cursor: 'inherit'}" ng-click="nxtPage()"></div>
+					<div ng-if="operating" class="operating-tip" ng-style="{height:style.contheight*0.2+'px', 'line-height':style.contheight*0.2+'px', width:style.contwidth*0.6+'px', 'margin-left':style.contwidth*0.2+'px', 'margin-top':style.contheight*0.3+'px', 'border-radius': '10px', 'text-align':'center', 'vertical-align':'middle'}">{{(operating!=true && operating) || 'Please Waitting...'}}</div>
 				</div>
 
 				<div ng-if="showlist || !part" class="content list-content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px'}">
