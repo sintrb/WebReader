@@ -7,13 +7,16 @@
 angular.module('reader.service', [])
 	.factory('readerService', function($http){
 		var baseurl = "data/";
-		var runHttpRequest = function(url, method){
+		var runHttpRequest = function(url, method, data){
 			return $http({
 				method: method?method:'GET',
-				url:baseurl + url
+				url:baseurl + url,
+				data:data?data:null
 			});
 		};
 		// URL
+		// 0.get setting info
+		//    GET:baseurl+/setting.json
 		// 1.get book info
 		//    GET:baseurl+/book{book_id}/book.json
 		// 2.get book part
@@ -24,7 +27,13 @@ angular.module('reader.service', [])
 		//    GET:baseurl+/book{book_id}/part{part_id}/progress.json
 		// 4.post book read process
 		//   GET/POST:baseurl+/book{book_id}/part{part_id}/progress/{content_id}
+		// 5.post setting info
+		//   POST:baseurl+/setting.json
+
 		return {
+			getSetting : function(book_id){
+				return runHttpRequest("setting.json");
+			},
 			getBook : function(book_id){
 				return runHttpRequest("book"+book_id+"/" + "book.json");
 			},
@@ -36,6 +45,9 @@ angular.module('reader.service', [])
 			},
 			postProgress : function(book_id, part_id, content_id){
 				return runHttpRequest("book"+book_id+"/" + "part"+part_id+"/progress/"+content_id, "POST");
+			},
+			postSetting : function(setting){
+				return runHttpRequest("setting.json", "POST", setting);
 			},
 		}
 	})
