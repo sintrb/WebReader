@@ -15,15 +15,23 @@ angular.module("reader",['reader.service'])
 			$scope.operating = err;
 			$timeout(function(){
 				$scope.operating = false;
-			}, 2000);
+			}, 20000);
 		}
+
+		// load setting
+		$scope.loadSetting = function(){
+			readerService.getSetting().success(function(setting){
+				$scope.fontsize = setting.fontsize;
+			});
+		}
+
 		// load a book by book_id
 		$scope.loadBook = function(book_id){
 			if($scope.operating)
 				return;
 			$scope.operating = true;
 			readerService.getBook(book_id).success(function(book){
-				if(book){
+				if(book && book.id){
 					$scope.book = book;
 
 					$scope.curpage = null;
@@ -40,6 +48,9 @@ angular.module("reader",['reader.service'])
 					}).error(function() {
 						$scope.loadPart($scope.book.parts[0].id);
 					});
+				}
+				else{
+					$scope.operaterror(book && book.msg ? book.msg: "Get Book Failed!");
 				}
 			}).error(function(data, status) {
 				$scope.operaterror("Oh, Error ! "+(status?status:''));
@@ -66,8 +77,11 @@ angular.module("reader",['reader.service'])
 					}
 					$scope.curpage = $scope.pages[$scope.page_no];
 					$scope.procUpdated = false;
+					$scope.operating = false;
 				}
-				$scope.operating = false;
+				else{
+					$scope.operaterror(book && book.msg ? book.msg: "Get Book Failed!");
+				}
 			}).error(function(data, status) {
 				$scope.operaterror("Oh, Error ! "+(status?status:''));
 			});
@@ -371,7 +385,15 @@ angular.module("reader",['reader.service'])
 		$scope.$watch('procUpdated', $scope.postProgress);
 
 		$scope.repage();
-		$scope.loadBook(1);
+		$scope.loadSetting();
+
+		var r = /bookid=([^&]+)/.exec(window.location.href);
+		if(r){
+			$scope.loadBook(r[1]);
+		}
+		else{
+			$scope.loadBook(1);
+		}
 		$(window).resize(function(event) {
 			$scope.$apply($scope.applyRepage);
 		});
