@@ -11,16 +11,17 @@ angular.module("reader",['reader.service'])
 		$scope.fontsize = 18;	// pix
 
 		$scope.operating = false;
-		$scope.operaterror = function(err){
+		$scope.operaterror = function(err, tm){
 			$scope.operating = err;
 			$timeout(function(){
 				$scope.operating = false;
-			}, 20000);
+			}, tm?tm:20000);
 		}
 
 		// load setting
 		$scope.loadSetting = function(){
 			readerService.getSetting().success(function(setting){
+				$scope.setting = setting;
 				$scope.fontsize = setting.fontsize;
 			});
 		}
@@ -45,6 +46,9 @@ angular.module("reader",['reader.service'])
 						if(progress && progress.book_id){
 							$scope.loadPart(progress.part_id, progress.content_id);
 						}
+						else if($scope.book.parts.length==1){
+							$scope.loadPart($scope.book.parts[0].id);
+						}
 					}).error(function() {
 						$scope.loadPart($scope.book.parts[0].id);
 					});
@@ -67,13 +71,16 @@ angular.module("reader",['reader.service'])
 					$scope.contents = part.contents;
 					$scope.repage();
 					$scope.page_no = 0;
-					if(switch_to_content_id){
+					if(switch_to_content_id>0){
 						$.each($scope.pages, function(index, val) {
 							var cnt = val.getCurContent();
 							if(cnt && cnt.id==switch_to_content_id){
 								$scope.page_no = index;
 							}
 						});
+					}
+					else if(switch_to_content_id<0){
+						$scope.page_no = $scope.pages.length-1;
 					}
 					$scope.curpage = $scope.pages[$scope.page_no];
 					$scope.procUpdated = false;
@@ -293,23 +300,34 @@ angular.module("reader",['reader.service'])
 			$scope.showlist = false;
 		}
 
-		$scope.applyRepage = function(){
-			var limittime = 300;
-			if(!$scope.lastApplyRepageTime){
-				$scope.repage();
+		function throttle(fn, tm) {
+			var cxt = {
+				count:0
 			}
-			else{
-				function doRepage(){
-					if((Date.now()-$scope.lastApplyRepageTime)>=limittime){
-						$scope.repage();
+			function warpfn(){
+				++cxt.count;
+				setTimeout(function(){
+					--cxt.count;
+					if(!cxt.lasttime || (Date.now()-cxt.lasttime)>=tm || cxt.count==0){
+						fn();
+						cxt.lasttime = Date.now();
 					}
-					// else, ignor this request
-				}
-				$timeout(doRepage, limittime*1.5);	// a little longer then limittime
+				}, tm);
 			}
-
-			$scope.lastApplyRepageTime = Date.now();
+			return warpfn;
 		}
+
+		$scope.applyRepage = throttle(function(){
+			$scope.$apply(function(){
+				$scope.repage();
+			});
+		}, 1000);
+
+		$scope.saveSetting = throttle(function(){
+			$scope.$apply(function(){
+				readerService.postSetting($scope.setting).success(function(){});
+			});
+		}, 2000);
 
 		// font ++
 		$scope.fontBiger = function(){
@@ -338,7 +356,7 @@ angular.module("reader",['reader.service'])
 						partix = index;
 				});
 				if(partix>0){
-					$scope.loadPart($scope.book.parts[partix-1].id);
+					$scope.loadPart($scope.book.parts[partix-1].id, -1);
 				}
 				else{
 					$scope.showlist = true;
@@ -364,13 +382,14 @@ angular.module("reader",['reader.service'])
 					$scope.loadPart($scope.book.parts[partix+1].id);
 				}
 				else{
-					$scope.showlist = true;
+					// $scope.showlist = true;
+					$scope.operaterror("Over!", 2000);
 				}
 			}
 		}
 
-		$scope.postProgress = function(){
-			// $scope.$apply(function(){
+		$scope.saveProcess = throttle(function(){
+			$scope.$apply(function(){
 				if(!$scope.procUpdated)
 					return;
 				var cnt = $scope.curpage?$scope.curpage.getCurContent():null;
@@ -378,11 +397,17 @@ angular.module("reader",['reader.service'])
 					readerService.postProgress($scope.book.id, $scope.part.id, cnt.id);
 				}
 				$scope.procUpdated = false;
-			// });
-		};
+			});
+		}, 2000);
 
-		$scope.$watch('fontsize', $scope.applyRepage);
-		$scope.$watch('procUpdated', $scope.postProgress);
+		$scope.$watch('fontsize', function(){
+			if(!$scope.setting || $scope.setting.fontsize == $scope.fontsize)
+				return;
+			$scope.setting.fontsize = $scope.fontsize;
+			$scope.applyRepage();
+			$scope.saveSetting();
+		});
+		$scope.$watch('procUpdated', $scope.saveProcess);
 
 		$scope.repage();
 		$scope.loadSetting();

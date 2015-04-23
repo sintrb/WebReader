@@ -32,7 +32,7 @@ angular.module('reader.service', [])
 
 		return {
 			getSetting : function(book_id){
-				return runHttpRequest("setting.json");
+				return runHttpRequest("setting.json?_="+Date.now());
 			},
 			getBook : function(book_id){
 				return runHttpRequest("book"+book_id+"/" + "book.json");
@@ -41,7 +41,7 @@ angular.module('reader.service', [])
 				return runHttpRequest("book"+book_id+"/" + "part"+part_id+".json");
 			},
 			getProgress : function(book_id){
-				return runHttpRequest("book"+book_id+"/progress.json", "GET");
+				return runHttpRequest("book"+book_id+"/progress.json?_="+Date.now(), "GET");
 			},
 			postProgress : function(book_id, part_id, content_id){
 				return runHttpRequest("book"+book_id+"/" + "part"+part_id+"/progress/"+content_id, "POST");
