@@ -33,6 +33,7 @@ body {
 	margin-left: 0.5rem;
 }
 .page .ft{
+	clear: both;
 	text-align: center;
 }
 .page .bd{

@@ -40,9 +40,12 @@ angular.module("reader",['reader.service'])
 					$scope.contents = null;
 					$scope.showlist = true;
 
-					$scope.operating = false;
+					$scope.listbooks = false;
+
+					// $scope.operating = false;
 
 					readerService.getProgress(book_id).success(function(progress){
+						$scope.operating = false;
 						if(progress && progress.book_id){
 							$scope.loadPart(progress.part_id, progress.content_id);
 						}
@@ -51,6 +54,7 @@ angular.module("reader",['reader.service'])
 						}
 					}).error(function() {
 						$scope.loadPart($scope.book.parts[0].id);
+						$scope.operating = false;
 					});
 				}
 				else{
@@ -58,10 +62,15 @@ angular.module("reader",['reader.service'])
 				}
 			}).error(function(data, status) {
 				$scope.operaterror("Oh, Error ! "+(status?status:''));
+				$scope.operating = false;
 			});
 		}
 		// load a part of a current book
 		$scope.loadPart = function(part_id, switch_to_content_id){
+			if($scope.part && part_id==$scope.part.id){
+				$scope.showlist = false;
+				return;
+			}
 			if($scope.operating)
 				return;
 			$scope.operating = true;
@@ -91,6 +100,21 @@ angular.module("reader",['reader.service'])
 				}
 			}).error(function(data, status) {
 				$scope.operaterror("Oh, Error ! "+(status?status:''));
+				$scope.operating = false;
+			});
+		}
+
+		$scope.loadBooks = function(){
+			if($scope.operating)
+				return;
+			$scope.operating = true;
+			readerService.getBooks().success(function(books){
+				$scope.books = books;
+				$scope.listbooks = true;
+				$scope.operating = false;
+			}).error(function(data, status) {
+				$scope.operaterror("Oh, Error ! "+(status?status:''));
+				$scope.operating = false;
 			});
 		}
 
@@ -145,6 +169,10 @@ angular.module("reader",['reader.service'])
 			var bdwidth = contwidth;
 
 			var pwidth = bdwidth - 2*contmarginx;
+			
+			var bookmargin = 5;
+			var bookmwidth = (pagewidth-contmarginx*2)/3-bookmargin*2;
+			var bookhegiht = bookmwidth*1.5;
 
 			$scope.style = {
 				screenheight: screenheight,
@@ -160,7 +188,13 @@ angular.module("reader",['reader.service'])
 				contmarginx: contmarginx,
 				pwidth: pwidth,
 				lineheight: lineheight,
+				lineheightpix: lineheightpix,
 				fontsize: fontsize,
+
+				bookmargin:bookmargin,
+				bookmwidth:bookmwidth,
+				bookhegiht:bookhegiht,
+				booknametop:bookhegiht-lineheightpix*2,
 			}
 
 			// if no content to refresh(only get style) or screen is too small
@@ -209,11 +243,11 @@ angular.module("reader",['reader.service'])
 					var nw = 0, nh = 0;
 
 					if(rk>sk){
-						nw = contwidth*0.8;
+						nw = contwidth-2*fontsize;
 						nh = nw/rk;
 					}
 					else{
-						nh = contheight*0.8;
+						nh = contheight-2*fontsize;
 						nw = nh*rk;
 					}
 
@@ -417,7 +451,8 @@ angular.module("reader",['reader.service'])
 			$scope.loadBook(r[1]);
 		}
 		else{
-			$scope.loadBook(1);
+			// $scope.loadBook(1);
+			$scope.loadBooks();
 		}
 		$(window).resize(function(event) {
 			$scope.$apply($scope.applyRepage);
