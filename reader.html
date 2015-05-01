@@ -29,9 +29,9 @@
 			<div class="hd">
 				<h3>{{(!showlist && part.title) || book.title || 'WebReader'}}</h3>
 			</div>
-			<div class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
+			<div ng-if="!listbooks" class="bd" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px'}">
 				<div ng-if="!(showlist || !part)" class="content" ng-style="{height:style.contheight+'px', width:style.contwidth+'px', 'margin-top':'-'+curpage.offh+'px'}">
-					<div ng-repeat="c in curpage.contents track by $index" ng-style="{width:style.contwidth+'px', height:c._size.h+'px', 'text-align':c.format.align}" ng-data-id="{{c.id}}">
+					<div ng-repeat="c in curpage.contents" ng-style="{width:style.contwidth+'px', height:c._size.h+'px', 'text-align':c.format.align}" ng-data-id="{{c.id}}">
 						<p ng-if="c.type=='text'" class="paragraph" ng-class="{'bold':c.format.bold}" ng-style="pTextStyle(c)">{{c.text}}</p>
 						<img ng-if="c.type=='image'" ng-src="{{c.src}}" ng-style="{width:c._size.w+'px', height:c._size.h+'px'}"/>
 					</div>
@@ -46,6 +46,11 @@
 					<ul style="list-style-type: decimal;text-align: left;">
 						<li ng-repeat="p in book.parts track by $index" ng-if="p.level==0" ng-click="loadPart(p.id)" ng-style="{'font-weight':p.id==part.id?'bold':'normal'}">{{p.title}}</li>
 					</ul>
+				</div>
+			</div>
+			<div ng-if="listbooks" class="bd listbooks" ng-style="{width:style.bdwidth+'px', height:style.bdheight+'px', margin:style.contmarginy+'px '+style.contmarginx+'px', 'font-size':style.fontsize+'px', 'overflow-y':'scroll'}">
+				<div ng-repeat="b in books track by $index" class="bookitme" ng-style="{margin:style.bookmargin+'px', height:style.bookhegiht+'px', width:style.bookmwidth+'px', displat:'inner-block', float:'left'}" ng-click="loadBook(b.id)">
+					<img ng-src="{{b.cover}}" ng-style="{height:style.bookhegiht+'px', width:style.bookmwidth+'px'}" />
 				</div>
 			</div>
 

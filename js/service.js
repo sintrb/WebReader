@@ -29,6 +29,8 @@ angular.module('reader.service', [])
 		//   GET/POST:baseurl+/book{book_id}/part{part_id}/progress/{content_id}
 		// 5.post setting info
 		//   POST:baseurl+/setting.json
+		// 6.get books
+		//   GET:baseurl+/books.json
 
 		return {
 			getSetting : function(book_id){
@@ -48,6 +50,9 @@ angular.module('reader.service', [])
 			},
 			postSetting : function(setting){
 				return runHttpRequest("setting.json", "POST", setting);
+			},
+			getBooks : function(setting){
+				return runHttpRequest("books.json");
 			},
 		}
 	})
