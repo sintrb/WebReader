@@ -71,8 +71,12 @@ body {
 }
 
 .touchpage{
-	background-color: #FFF;
-	opacity: 0.001;
+	/*background-color: #000;*/
+	/*opacity: 0.5;*/
+}
+
+.touchpage-mask{
+	/*background-color: #f00;*/
 }
 
 .operating-tip{
